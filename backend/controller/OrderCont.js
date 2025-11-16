@@ -5,38 +5,39 @@ const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 exports.newOrder = catchAsyncErrors(async (req, res, next) => {
   const {
     orderItems,
-    coupon,
     destionation_address,
-    price,
-    gst,
-    discount,
+    subtotal,
+    shipping,
     total,
-    creditcoupon,
-    downpayment,
-    outstandingbalence
+    name,
+    email,
+    phone,
+    paymentMethod,
   } = req.body;
-  let order_id = "S0000001";
+  
+  // Generate order ID in format ORD-XXXXXXXX
+  const generateOrderId = () => {
+    const randomNum = Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
+    return `ORD-${randomNum}`;
+  };
+  
+  let order_id = generateOrderId();
+  
   let orderObj = {
     orderItems: orderItems,
-    price: price,
-    GST: gst,
+    subtotal: subtotal,
+    shipping: shipping,
     total: total,
     destionationAddress: destionation_address,
-    orderID:order_id,
+    name: name,
+    email: email,
+    phone: phone,
+    paymentMethod: paymentMethod || "CRED",
+    orderID: order_id,
     paidAt: Date.now(),
-    user: req.user._id,
     orderRemarks: "Payment Completed"
   }
-  if(coupon){
-    orderObj.coupon = coupon
-    orderObj.discount = discount
-  }
-  if(creditcoupon) {
-    orderObj.creditCoupon = creditcoupon;
-    orderObj.downPayment = downpayment;
-    orderObj.outstandingBalence = outstandingbalence;
-    orderObj.orderRemarks = "Outstanding Balence is remaining"
-  }
+  
   const order = await Order.create(orderObj);
   res.status(201).json({
     success: true,
@@ -96,12 +97,75 @@ exports.getAllOrders = catchAsyncErrors(async (req, res, next) => {
   const orders = await Order.find();
   let totalAmount = 0;
   orders.forEach((order) => {
-    totalAmount += order.totalPrice;
+    totalAmount += order.total;
   });
   res.status(200).json({
     success: true,
     totalAmount,
     orders,
+  });
+});
+
+exports.updateOrderStatus = catchAsyncErrors(async (req, res, next) => {
+  const { status, remarks } = req.body;
+  const orderId = req.params.id;
+
+  // Valid status values
+  const validStatuses = [
+    "PROCESSING",
+    "SHIPPED",
+    "DELIVERED",
+    "CANCELLED",
+  ];
+
+  if (status && !validStatuses.includes(status)) {
+    return next(new ErrorHander("Invalid order status", 400));
+  }
+
+  const updateData = {};
+  
+  if (status) {
+    updateData.orderStatus = status;
+  }
+  
+  if (remarks) {
+    updateData.orderRemarks = remarks;
+  }
+
+  // Add timestamp based on status
+  switch (status) {
+    case "PROCESSING":
+      updateData.processingAt = new Date();
+      break;
+    case "SHIPPED":
+      updateData.shippedAt = new Date();
+      break;
+    case "DELIVERED":
+      updateData.deliveredAt = new Date();
+      break;
+    case "CANCELLED":
+      updateData.cancelledAt = new Date();
+      break;
+  }
+
+  const order = await Order.findByIdAndUpdate(
+    orderId,
+    updateData,
+    {
+      new: true,
+      runValidators: true,
+      useFindAndModify: false,
+    }
+  );
+
+  if (!order) {
+    return next(new ErrorHander("Order not found with this Id", 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Order status updated successfully",
+    order,
   });
 });
 

@@ -13,10 +13,10 @@ const productSchema = new mongoose.Schema({
     type: Number,
     required: [true, "Please Enter product Price"],
   },
-  scent: [{
+  color: {
     type: String,
-    required: [true, "Please Enter product scent"],
-  }],
+    required: [true, "Please Enter product color"],
+  },
   tokenId: {
     type: String,
     required: [true, "Please Enter product tokeId"],

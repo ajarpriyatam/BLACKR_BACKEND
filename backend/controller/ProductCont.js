@@ -51,8 +51,12 @@ exports.getProductDetails = catchAsyncErrors(async (req, res, next) => {
     })
 });
 exports.getAllProductsAdmin = catchAsyncErrors(async (req, res, next) => {
-    const ProductAll = await Product.find()
+    const ProductAll = await Product.find().select('name price color productImageGallery tokenId category')
     const productsCount = await Product.countDocuments();
+    for (let i = 0; i < ProductAll.length; i++) {
+        let tempImage = [ProductAll[i].productImageGallery[0]];
+        ProductAll[i].productImageGallery = tempImage;
+    }
     res.status(200).json({
         success: true,
         ProductAll,
@@ -61,12 +65,17 @@ exports.getAllProductsAdmin = catchAsyncErrors(async (req, res, next) => {
 });
 exports.getAllProducts = catchAsyncErrors(async (req, res, next) => {
     try {
-        let ProductAll = await Product.find()
-        let products = ProductAll.filter(product => product.display === true);
+        let ProductAll = await Product.find({ display: true })
+            .select('name price color productImageGallery')
+
+        for (let i = 0; i < ProductAll.length; i++) {
+            let tempImage = [ProductAll[i].productImageGallery[0]];
+            ProductAll[i].productImageGallery = tempImage;
+        }
         res.status(200).json({
             success: true,
-            products,
-            productsCount: products.length
+            products: ProductAll,
+            productsCount: ProductAll.length
         })
     } catch (error) {
         res.status(500).json({
@@ -77,19 +86,17 @@ exports.getAllProducts = catchAsyncErrors(async (req, res, next) => {
     }
 });
 exports.getTopRatedProducts = catchAsyncErrors(async (req, res, next) => {
-    let ProductAll = await Product.find()
-    let productsCount = await Product.countDocuments();
-    let products = [];
-    for (let i = 0; i < productsCount; i++) {
-        if (ProductAll[i].tokenId[0] == 'A') {
-            products.push(ProductAll[i]);
-        }
+    let ProductAll = await Product.find({ tokenId: { $regex: '^A' } })
+        .select('name price color productImageGallery')
+
+    for (let i = 0; i < ProductAll.length; i++) {
+        let tempImage = [ProductAll[i].productImageGallery[0]];
+        ProductAll[i].productImageGallery = tempImage;
     }
-    productsCount = products.length;
     res.status(200).json({
         success: true,
-        products,
-        productsCount
+        products: ProductAll,
+        productsCount: ProductAll.length
     })
 });
 exports.updateProduct = catchAsyncErrors(async (req, res, next) => {
@@ -117,7 +124,12 @@ exports.getProductsByCategory = catchAsyncErrors(async (req, res, next) => {
         const products = await Product.find({ 
             category: { $regex: category, $options: 'i' },
             display: true 
-        });
+        }).select('name price color productImageGallery');
+
+        for (let i = 0; i < products.length; i++) {
+            let tempImage = [products[i].productImageGallery[0]];
+            products[i].productImageGallery = tempImage;
+        }
         
         res.status(200).json({
             success: true,
@@ -143,8 +155,14 @@ exports.getNewArrivals = catchAsyncErrors(async (req, res, next) => {
             display: true,
             createdAt: { $gte: thirtyDaysAgo }
         })
+        .select('name price color productImageGallery')
         .sort({ createdAt: -1 })
         .limit(10); // Limit to 10 newest products
+
+        for (let i = 0; i < newArrivals.length; i++) {
+            let tempImage = [newArrivals[i].productImageGallery[0]];
+            newArrivals[i].productImageGallery = tempImage;
+        }
         
         res.status(200).json({
             success: true,
