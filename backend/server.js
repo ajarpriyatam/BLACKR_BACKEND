@@ -1,6 +1,6 @@
 const app = require("./app.js");
 const dotenv = require('dotenv')
-const connect = require("./db/connect.js");
+const { connect, ensureConnection } = require("./db/connect.js");
 const cloudinary = require("cloudinary");
 
 // Load environment variables - try both local and Vercel
@@ -15,12 +15,20 @@ const startServer = async () => {
     console.log("✅ Database connection established");
   } catch (error) {
     console.error("❌ Failed to connect to database:", error.message);
-    console.warn("⚠️ Continuing without database connection - will retry automatically");
+    console.warn("⚠️ Will retry on first request");
   }
 };
 
-// Initialize database connection (non-blocking)
-startServer();
+// Initialize database connection (non-blocking for local, blocking for serverless)
+if (process.env.NODE_ENV === 'production') {
+  // For serverless, ensure connection before exporting
+  startServer().catch(err => {
+    console.error("Initial connection failed, will retry on request:", err.message);
+  });
+} else {
+  // For local development, start connection in background
+  startServer();
+}
 
 // Configure Cloudinary
 cloudinary.config({

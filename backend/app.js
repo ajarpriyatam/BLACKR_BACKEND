@@ -3,6 +3,7 @@ const app = express();
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const path = require("path")
+const { ensureConnection } = require("./db/connect");
 
 // if (process.env.NODE_ENV !== "PRODUCTION") {
 //     require("dotenv").config({ path: "backend/db/config.env" });
@@ -11,6 +12,26 @@ const path = require("path")
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser());
+
+// Middleware to ensure DB connection before handling API requests
+app.use(async (req, res, next) => {
+  // Skip for health check and static files
+  if (req.path === '/api/health' || req.path.startsWith('/static') || !req.path.startsWith('/api')) {
+    return next();
+  }
+  
+  try {
+    await ensureConnection();
+    next();
+  } catch (error) {
+    console.error('Database connection error in middleware:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Database connection error",
+      error: error.message || "Unable to connect to database. Please try again later."
+    });
+  }
+});
 
 const product = require("./routes/ProdectRoute");
 const user = require("./routes/UserRoute");
