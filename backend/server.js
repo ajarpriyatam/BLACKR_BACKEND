@@ -1,5 +1,6 @@
 const app = require("./app.js");
-const dotenv = require('dotenv')
+const dotenv = require('dotenv');
+const Razorpay = require("razorpay");
 const { connect, ensureConnection } = require("./db/connect.js");
 const cloudinary = require("cloudinary");
 
@@ -37,7 +38,7 @@ cloudinary.config({
   api_secret: process.env.APISECRET,
 });
 
-export const instance = new Razorpay({
+exports.instance = new Razorpay({
   key_id: process.env.RAZORPAY_API_KEY,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
@@ -47,6 +48,8 @@ const PORT = process.env.PORT || 4000;
 // For Vercel serverless functions, export the app directly
 if (process.env.NODE_ENV === 'production') {
   module.exports = app;
+  // Also export instance for use in other modules
+  module.exports.instance = exports.instance;
 } else {
   // For local development, start the server
   const server = app.listen(PORT, () => {

@@ -24,6 +24,7 @@
     "mongoose": "^8.6.3",
     "nodemailer": "^6.9.15",
     "nodemon": "^3.1.7",
+    "razorpay": "^2.9.6",
     "validator": "^13.12.0",
     "webfontloader": "^1.6.28"
   }

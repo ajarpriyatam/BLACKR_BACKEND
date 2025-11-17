@@ -7,6 +7,7 @@ const {
   updateOrderByAdmin,
   orderClearPayment,
   updateOrderStatus,
+  paymentVerification
 } = require("../controller/OrderCont");
 const router = express.Router();
 
