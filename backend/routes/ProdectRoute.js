@@ -17,7 +17,6 @@ const router = express.Router();
 router.route("/admin/products").get(getAllProductsAdmin);
 router.route("/products").get(getAllProducts);
 router.route("/products/top").get(getTopRatedProducts);
-router.route("/products/new-arrivals").get(getNewArrivals);
 router.route("/products/category/:category").get(getProductsByCategory);
 router.route("/product/:id").get(getProductDetails);
 router

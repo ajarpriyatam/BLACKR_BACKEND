@@ -144,41 +144,6 @@ exports.getProductsByCategory = catchAsyncErrors(async (req, res, next) => {
         });
     }
 });
-
-exports.getNewArrivals = catchAsyncErrors(async (req, res, next) => {
-    try {
-        // Get products created in the last 30 days, sorted by newest first
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        
-        const newArrivals = await Product.find({
-            display: true,
-            createdAt: { $gte: thirtyDaysAgo }
-        })
-        .select('name price color productImageGallery')
-        .sort({ createdAt: -1 })
-        .limit(10); // Limit to 10 newest products
-
-        for (let i = 0; i < newArrivals.length; i++) {
-            let tempImage = [newArrivals[i].productImageGallery[0]];
-            newArrivals[i].productImageGallery = tempImage;
-        }
-        
-        res.status(200).json({
-            success: true,
-            products: newArrivals,
-            productsCount: newArrivals.length,
-            message: "New arrivals fetched successfully"
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Database connection error',
-            error: error.message
-        });
-    }
-});
-
 exports.deleteProduct = catchAsyncErrors(async (req, res, next) => {
     const product = await Product.findById(req.params.id);
 

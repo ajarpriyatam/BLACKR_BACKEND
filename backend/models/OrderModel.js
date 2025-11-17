@@ -14,15 +14,11 @@ const orderSchema = new mongoose.Schema({
       type: Number,
       required: true,
     },
-    tokenId: {
-      type: String,
-      required: true,
-    },
     color: {
       type: String,
       required: true,
     },
-    quantity:{
+    quantity: {
       type: Number,
       required: true,
     }
@@ -50,7 +46,7 @@ const orderSchema = new mongoose.Schema({
     addreslin1: {
       type: String,
       required: true,
-    },    
+    },
     city: {
       type: String,
       required: true,
@@ -104,6 +100,30 @@ const orderSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
+  },
+  razorpay_order_id: { 
+    type: String 
+  },
+  razorpay_payment_id: { 
+    type: String 
+  },
+  razorpay_signature: { 
+    type: String 
+  },
+  isCanceled: {
+    isCanceled: { type: Boolean, default: false },
+    refundStatus: {
+      type: String,
+      enum: ["processing", "approved", "issued"],
+    },
+  },
+  payment_method: {
+    type: String,
+    default: "cash",
+  },
+  paymentStatus: {
+    type: String,
+    enum: ["success", "failed", "refunded"],
   },
 });
 

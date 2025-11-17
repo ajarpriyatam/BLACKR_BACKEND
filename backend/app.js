@@ -43,6 +43,14 @@ app.use("/api/v4", user);
 app.use("/api/v4", order);
 app.use("/api/v4", coupon);
 
+app.get("/api/getkey", (req, res) => {
+  res.status(200).json({
+    key: process.env.RAZORPAY_API_KEY,
+    success: true,
+    message: "Get Razorpay API key from backend to frontend",
+  });
+});
+
 // app.use(express.static(path.join(__dirname, "../frontend/build")));
 
 // Serve static files from public directory

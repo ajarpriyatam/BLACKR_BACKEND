@@ -37,6 +37,11 @@ cloudinary.config({
   api_secret: process.env.APISECRET,
 });
 
+export const instance = new Razorpay({
+  key_id: process.env.RAZORPAY_API_KEY,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+
 const PORT = process.env.PORT || 4000;
 
 // For Vercel serverless functions, export the app directly
