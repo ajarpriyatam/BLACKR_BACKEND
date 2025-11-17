@@ -2,12 +2,45 @@ const express = require("express");
 const app = express();
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
+const cors = require("cors");
 const path = require("path")
 const { ensureConnection } = require("./db/connect");
 
 // if (process.env.NODE_ENV !== "PRODUCTION") {
 //     require("dotenv").config({ path: "backend/db/config.env" });
 //   }
+
+// CORS configuration
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // In development, allow all origins
+    if (process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+    
+    // In production, check against allowed origins
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'https://blackr-backend.vercel.app',
+      process.env.CLIENT_URL
+    ].filter(Boolean); // Remove undefined values
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
