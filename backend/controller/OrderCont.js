@@ -36,8 +36,6 @@ exports.newOrder = catchAsyncErrors(async (req, res, next) => {
     phone: phone,
     paymentMethod: paymentMethod || "CRED",
     orderID: order_id,
-    paidAt: Date.now(),
-    orderRemarks: "Payment Completed"
   }
 
   const order = await Order.create(orderObj);

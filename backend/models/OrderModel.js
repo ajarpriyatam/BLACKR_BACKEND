@@ -40,7 +40,6 @@ const orderSchema = new mongoose.Schema({
   },
   orderRemarks: {
     type: String,
-    required: true
   },
   destionationAddress: {
     addreslin1: {
@@ -75,9 +74,6 @@ const orderSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    required: true,
-    enum: ["CRED", "CASH", "CARD", "UPI", "NET_BANKING"],
-    default: "CRED"
   },
   orderStatus: {
     type: String,
@@ -90,8 +86,7 @@ const orderSchema = new mongoose.Schema({
     required: true,
   },
   paidAt: {
-    type: Date,
-    required: true,
+    type: Date
   },
   // Status timestamps
   shippedAt: Date,
